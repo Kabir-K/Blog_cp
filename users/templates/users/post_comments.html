@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comments on Post {{ post.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #ecf0f1;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-name {
+            font-weight: bold;
+            color: #3498db;
+        }
+        .comment-time {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .comment-text {
+            margin-top: 10px;
+            font-size: 1.1em;
+            line-height: 1.5;
+            color: #2c3e50;
+        }
+        .no-comments {
+            text-align: center;
+            font-size: 1.2em;
+            color: #e74c3c;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Comments on Post {{ post.id }}</h1>
+        <ul>
+            {% for comment in comments %}
+            <li>
+                <div class="comment-header">
+                    <span class="user-name">{{ comment.user.user_name }}</span>
+                    <span class="comment-time">{{ comment.uploaded_at|date:"F j, Y, g:i a" }}</span>
+                </div>
+                <p class="comment-text">"{{ comment.comment }}"</p>
+            </li>
+            {% empty %}
+            <li class="no-comments">No comments for this post.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</body>
+</html>
