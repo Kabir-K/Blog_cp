@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f7f7f7;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.9em;
+            margin-bottom: 10px;
+        }
+        h2 {
+            text-align: center;
+            color: #34495e;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+        }
+        .user-list {
+            list-style-type: none;
+            padding: 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .user-card {
+            background-color: #ffffff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .user-card a {
+            text-decoration: none;
+            color: #3498db;
+            font-weight: bold;
+        }
+        .user-card a:hover {
+            text-decoration: underline;
+        }
+        .user-select {
+            display: block;
+            margin: 0 auto 30px;
+            padding: 10px;
+            max-width: 400px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Blog Database Management</h1>
+
+    <h2>Select Current User</h2>
+
+    <!-- User Selection Dropdown -->
+    <form id="userForm">
+        <select class="user-select" id="currentUser" name="currentUser">
+            <option value="">Select a user</option>
+            {% for user in users %}
+                <option value="{{ user.id }}">{{ user.user_name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <h2>View Posts from Users</h2>
+
+    <ul class="user-list">
+        {% for user in users %}
+            <li class="user-card">
+                <a href="{% url 'user' user.id %}" onclick="return checkUserSelection()">
+                    <div class="user-info">
+                        ID: {{ user.id }}
+                    </div>
+                    <div class="user-info">
+                        Username: {{ user.user_name }}
+                    </div>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        function checkUserSelection() {
+            var currentUser = document.getElementById("currentUser").value;
+            if (!currentUser) {
+                alert("Please select a user before proceeding.");
+                return false;
+            }
+            localStorage.setItem('selectedUser', currentUser);  
+            return true;
+        }
+
+        // Auto-select the previously selected user if exists
+        document.addEventListener('DOMContentLoaded', function() {
+            var selectedUser = localStorage.getItem('selectedUser');
+            if (selectedUser) {
+                document.getElementById('currentUser').value = selectedUser;
+            }
+        });
+    </script>
+</body>
+</html>

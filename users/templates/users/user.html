@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User Profile</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                background-color: #f7f7f7;
+                color: #333;
+                text-align: center;
+            }
+            .post-container {
+                position: relative;
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                min-height: 300px;
+            }
+            .post {
+                display: none;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: transform 0.6s ease, opacity 0.6s ease;
+            }
+            .post.active {
+                display: block;
+                opacity: 1;
+                transform: translateX(0);
+            }
+            .post-exit {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+            .nav-buttons {
+                display: flex;
+                justify-content: space-between;
+                margin: 20px 0;
+            }
+            .nav-buttons button {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                cursor: pointer;
+                font-size: 1em;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
+            .nav-buttons button:hover {
+                background-color: #2980b9;
+            }
+            .pagination {
+                margin: 10px 0;
+                font-size: 1em;
+                color: #7f8c8d;
+            }
+            .pagination span {
+                font-weight: bold;
+                color: #2c3e50;
+            }
+            .button-container {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>User Profile: {{ user.user_name }}</h1>
+
+        <div class="post-container">
+            <!-- Loop over the user's posts -->
+            {% for post in user.posts.all %}
+            <div class="post {% if forloop.first %}active{% endif %}">
+                <h2>Post {{ forloop.counter }}</h2>
+                <h2>ID {{ post.id }}</h2>
+                <p>{{ post.content|slice:":300000" }}{% if post.content|length > 300000 %}...{% endif %}</p>
+                <p>Posted on: {{ post.uploaded_at }}</p>
+                <p>Likes: <span id="like-count-{{ post.id }}">{{ post.like_count }}</span></p>
+
+                {% if post.image %}
+                <div>
+                    <img src="{{ post.image.url }}" alt="Image for post {{ post.id }}" style="max-width: 100%; height: auto; border-radius: 5px;">
+                </div>
+                {% endif %}
+
+                <!-- Button Container for Left and Right Alignment -->
+                <div class="button-container">
+                    <!-- Like Form -->
+                    <form action="{% url 'like_post' post.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" id="user_id_{{ post.id }}" name="user_id">
+                        <button type="submit">Like</button>
+                    </form>
+
+                    <!-- Add Comment Button -->
+                    <a href="{% url 'add_comment' post.id %}">
+                        <button type="button">Add Comment</button>
+                    </a>
+                </div>
+
+                <a href="{% url 'post_likes' post.id %}">View who liked this post</a><br>
+                <a href="{% url 'post_comments' post.id %}">View comments</a>
+            </div>
+            {% empty %}
+            <div class="post active">No posts available.</div>
+            {% endfor %}
+        </div>
+
+        <div class="pagination">
+            <p>Post <span id="currentPost">1</span> of <span id="totalPosts">{{ user.posts.count }}</span></p>
+        </div>
+
+        <div class="nav-buttons">
+            <button id="prevBtn">← Previous</button>
+            <button id="nextBtn">Next →</button>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const posts = document.querySelectorAll('.post');
+                const totalPosts = posts.length;
+                let currentPostIndex = 0;
+                
+                function updatePagination() {
+                    document.getElementById('currentPost').textContent = currentPostIndex + 1;
+                }
+
+                function showPost(index) {
+                    posts.forEach((post, i) => {
+                        post.classList.remove('active', 'post-exit', 'post-enter');
+                        if (i === index) {
+                            post.classList.add('active');
+                        }
+                    });
+                    updatePagination();
+                }
+
+                document.getElementById('nextBtn').addEventListener('click', function() {
+                    posts[currentPostIndex].classList.add('post-exit');
+                    currentPostIndex = (currentPostIndex + 1) % totalPosts;
+                    showPost(currentPostIndex);
+                });
+
+                document.getElementById('prevBtn').addEventListener('click', function() {
+                    posts[currentPostIndex].classList.add('post-exit');
+                    currentPostIndex = (currentPostIndex - 1 + totalPosts) % totalPosts;
+                    showPost(currentPostIndex);
+                });
+
+                updatePagination();
+            });
+            document.addEventListener('DOMContentLoaded', function() {
+                var selectedUser = localStorage.getItem('selectedUser');
+                if (selectedUser) {
+                    document.querySelectorAll('[id^="user_id_"]').forEach(function(input) {
+                        input.value = selectedUser;
+                    });
+                }
+            });
+        </script>
+    </body>
+</html>
